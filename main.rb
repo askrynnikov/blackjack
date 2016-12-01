@@ -15,6 +15,10 @@ class Card
     @suit = suit
     @symbol = symbol
   end
+
+  def to_s
+    symbol
+  end
 end
 
 class Deck
@@ -40,12 +44,12 @@ class Deck52 < Deck
     self
   end
 
-  def take_card
+  def pop
     raise 'the deck has no cards' if @cards.size.zero?
     @cards.pop
   end
 
-  def put_card(card)
+  def push(card)
     @cards << card
     self
   end
@@ -66,9 +70,25 @@ class Bank
   end
 end
 
+class Blackjack
+  POINTS = { ace: 1, two: 2, three: 3, four: 4, five: 5,
+             six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+             jack: 10, queen: 10, king: 10 }
+
+  def points_count(*cards)
+    points = cards.reduce(0) { |p, card| p + POINTS[card.pip] }
+    cards.reduce(points) do |p, card|
+      p + (card.pip == :ace && p <= 11 ? 10 : 0)
+    end
+  end
+end
+
+
 deck = Deck52.new
 deck.shuffle!
 
-52.times { puts deck.take_card.symbol }
+# 52.times { puts deck.pop.symbol }
 # puts deck.take_card.symbol
 # puts deck.take_card.symbol
+
+puts Blackjack.new.points_count(deck.pop, deck.pop)
