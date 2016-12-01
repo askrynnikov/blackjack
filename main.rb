@@ -56,17 +56,27 @@ class Deck52 < Deck
 end
 
 class Bank
+  attr_reader :amount
+
   def initialize(amount = 0)
     @amount = amount
   end
 
   def push(amount)
     @amount += amount
+    self
   end
 
   def pop(amount)
     raise 'bank contains less than the requested amount' if amount > @amount
     @amount -= amount
+    self
+  end
+
+  def pop_full
+    amount = @amount.dup
+    @amount = 0
+    amount
   end
 end
 
@@ -83,6 +93,17 @@ class Blackjack
   end
 end
 
+class Party
+  def initialize(amount = 0)
+    @amount = amount
+  end
+
+  def bet(amount)
+    raise 'member has no such amount' if amount > @amount
+    @amount -= amount
+    amount
+  end
+end
 
 deck = Deck52.new
 deck.shuffle!
