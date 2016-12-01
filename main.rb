@@ -37,6 +37,7 @@ class Deck52 < Deck
 
   def shuffle!
     @cards.shuffle!
+    self
   end
 
   def take_card
@@ -46,13 +47,28 @@ class Deck52 < Deck
 
   def put_card(card)
     @cards << card
+    self
   end
 end
 
+class Bank
+  def initialize(amount = 0)
+    @amount = amount
+  end
+
+  def push(amount)
+    @amount += amount
+  end
+
+  def pop(amount)
+    raise 'bank contains less than the requested amount' if amount > @amount
+    @amount -= amount
+  end
+end
 
 deck = Deck52.new
 deck.shuffle!
 
-53.times{puts deck.take_card.symbol}
+52.times { puts deck.take_card.symbol }
 # puts deck.take_card.symbol
 # puts deck.take_card.symbol
