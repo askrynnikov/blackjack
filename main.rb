@@ -1,10 +1,11 @@
+PIPS = { ace: 'A', two: '2', three: '3', four: '4', five: '5',
+         six: '6', seven: '7', eight: '8', nine: '9', ten: '10',
+         jack: 'J', queen: 'Q', king: 'K' }
+
 SUITS = { spades: "\u2660",
           hearts: "\u2665",
           diamonds: "\u2666",
           clubs: "\u2663" }
-PIPS = { ace: 'A', two: '2', three: '3', four: '4', five: '5',
-         six: '6', seven: '7', eight: '8', nine: '9', ten: '10',
-         jack: 'J', queen: 'Q', king: 'K' }
 
 class Card
   attr_reader :name, :pip, :suit, :symbol
@@ -50,7 +51,11 @@ class Deck52 < Deck
   end
 
   def push(card)
-    @cards << card
+    if card.is_a?(Array)
+      @cards += card
+    else
+      @cards << card
+    end
     self
   end
 end
@@ -73,14 +78,15 @@ class Bank
     self
   end
 
-  def pop_full
-    amount = @amount.dup
+  def pop_full!
+    amount = @amount
     @amount = 0
     amount
   end
+
 end
 
-class Blackjack
+module RulesBlackjack
   POINTS = { ace: 1, two: 2, three: 3, four: 4, five: 5,
              six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
              jack: 10, queen: 10, king: 10 }
@@ -91,11 +97,31 @@ class Blackjack
       p + (card.pip == :ace && p <= 11 ? 10 : 0)
     end
   end
+
+  def comparison_points(p1, p2)
+    if p1 <= 21 && (p2 < p1 || p2 > 21)
+      1
+    elsif p2 <= 21 && (p1 < p2 || p1 > 21)
+      -1
+    else
+      0
+    end
+  end
+
 end
 
 class Party
+  include RulesBlackjack
+
+  attr_reader :amount
+
   def initialize(amount = 0)
     @amount = amount
+    @cards = []
+  end
+
+  def points
+    points_count(*@cards)
   end
 
   def bet(amount)
@@ -103,13 +129,75 @@ class Party
     @amount -= amount
     amount
   end
+
+  def win(amount)
+    @amount += amount
+    self
+  end
+
+  def hand(card)
+    @cards << card
+    self
+  end
+
+  def throw_all_cards
+    cards = @cards.dup
+    @cards = []
+    return cards
+  end
 end
 
-deck = Deck52.new
-deck.shuffle!
+
+include RulesBlackjack
 
 # 52.times { puts deck.pop.symbol }
 # puts deck.take_card.symbol
 # puts deck.take_card.symbol
 
-puts Blackjack.new.points_count(deck.pop, deck.pop)
+# puts RulesBlackjack::points_count(deck.pop, deck.pop)
+
+player = Party.new(100)
+dealer = Party.new(100)
+bank = Bank.new()
+deck = Deck52.new
+
+
+100.times do |i|
+  deck.shuffle!
+
+  bank.push(player.bet(10))
+  bank.push(dealer.bet(10))
+
+  player.hand(deck.pop)
+  player.hand(deck.pop)
+  dealer.hand(deck.pop)
+  dealer.hand(deck.pop)
+
+  player.hand(deck.pop) if player.points < 17
+  dealer.hand(deck.pop) if dealer.points < 17
+
+  puts player.points
+  puts dealer.points
+
+  compare = RulesBlackjack.comparison_points(player.points, dealer.points)
+  case compare
+  when 1
+    player.win(bank.pop_full!)
+  when -1
+    dealer.win(bank.pop_full!)
+  when 0
+    win = bank.pop_full! / 2
+    player.win(win)
+    dealer.win(win)
+  end
+
+
+  puts i
+  puts player.amount
+  puts dealer.amount
+
+  deck.push(player.throw_all_cards)
+  deck.push(dealer.throw_all_cards)
+end
+
+# if player.points <=21
