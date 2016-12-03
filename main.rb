@@ -62,7 +62,7 @@ Action choice
   puts "You have cards: #{player.show_cards}, points: #{player.points}"
   puts "Casino have cards: #{dealer.show_cards}, points: #{dealer.points}"
 
-  compare = RulesBlackjack.comparison_points(player.points, dealer.points)
+  compare = comparison_points(player.points, dealer.points)
   case compare
   when 1
     puts 'You won!'
