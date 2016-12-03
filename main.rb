@@ -1,7 +1,7 @@
 require_relative 'lib/card'
 require_relative 'lib/desk/desk52'
 require_relative 'lib/rules_blackjack'
-require_relative 'lib/party'
+require_relative 'lib/player'
 require_relative 'lib/bank'
 
 include RulesBlackjack
@@ -13,8 +13,8 @@ bank = Bank.new
 puts 'Play Blackjack'
 print 'Enter your name: '
 player_name = gets.chomp
-player = Party.new(player_name, money)
-dealer = Party.new('Casino', money)
+player = Player.new(player_name, money)
+dealer = Player.new('Casino', money)
 
 loop do
   if player.amount < 10
@@ -46,8 +46,12 @@ Action choice
 3 - open
     MENU
     choice = gets.strip
-    break if choice == '3'
-    player.hand(deck.pop) if choice == '2'
+    case choice
+    when '2'
+      player.hand(deck.pop)
+    when '3'
+      break
+    end
 
     break if dealer.points == 21
     dealer.hand(deck.pop) if dealer.points < 17

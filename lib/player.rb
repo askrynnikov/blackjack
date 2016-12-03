@@ -1,7 +1,7 @@
 require_relative 'rules_blackjack'
 
 # party games
-class Party
+class Player
   include RulesBlackjack
 
   attr_reader :name, :amount
@@ -35,7 +35,7 @@ class Party
   def throw_all_cards
     cards = @cards.dup
     @cards = []
-    return cards
+    cards
   end
 
   def to_s

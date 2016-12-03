@@ -12,4 +12,23 @@ class Deck
   def initialize
     @cards = []
   end
+
+  def shuffle!
+    @cards.shuffle!
+    self
+  end
+
+  def pop
+    raise 'the deck has no cards' if cards.size.zero?
+    cards.pop
+  end
+
+  def push(card)
+    cards.push(*card)
+    self
+  end
+
+  protected
+
+  attr_accessor :cards
 end
